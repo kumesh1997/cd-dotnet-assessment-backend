@@ -1,4 +1,35 @@
+using Assessment.Api.CustomConfigurations;
+using Assessment.Api.Managers;
+using Assessment.Api.Middlewares;
+using AutoMapper;
+using DataAccess.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Automapper config
+IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
+builder.Services.AddSingleton(mapper);
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+/*
+ * Dependency Injection
+ */
+// Repositories
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+
+// Managers
+builder.Services.AddScoped<IClassManager, ClassManager>();
+builder.Services.AddScoped<ISubjectManager, SubjectManager>();
+builder.Services.AddScoped<IStudentManager, StudentManager>();
+
+// Register the environment name as a singleton service
+builder.Services.AddSingleton(builder.Environment.EnvironmentName);
+
+// Register custom health check
+builder.Services.AddHealthChecks()
+    .AddCheck<CustomHealthCheck>("custom_health_check");
 
 // Add services to the container.
 
@@ -15,6 +46,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(x => x
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
+app.MapHealthChecks("/api/v1/healthcheck");
+
+// global error handler
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

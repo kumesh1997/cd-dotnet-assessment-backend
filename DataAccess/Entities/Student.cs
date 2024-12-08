@@ -24,6 +24,9 @@ public partial class Student
     [Column("class_id")]
     public int? ClassId { get; set; }
 
+    [Column("is_deleted")]
+    public bool IsDeleted { get; set; }
+
     [ForeignKey("ClassId")]
     [InverseProperty("Students")]
     public virtual Class? Class { get; set; }

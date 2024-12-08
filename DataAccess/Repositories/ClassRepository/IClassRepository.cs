@@ -10,6 +10,6 @@ namespace DataAccess.Repositories
         Task<Class> CreateClass(CreateClassDto createClassDto);
         Task<Class> UpdateClass(int classId, UpdateClassDto updateClassDto);
         Task<bool> DeleteClass(int classId);
-        Task<List<Student>> GetAllClassStudents(int classId);
+        Task<ClassDto> GetAllClassStudents(int classId);
     }
 }

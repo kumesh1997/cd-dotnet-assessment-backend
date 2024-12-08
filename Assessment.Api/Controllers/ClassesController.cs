@@ -65,7 +65,7 @@ namespace Assessment.Api.Controllers
         public async Task<IActionResult> GetAllClassStudents(int id)
         {
             _logger.LogInformation("Assessment.Api.Controllers.ClassesController.GetAllClassStudents | Request in progress. | Class ID: {id}", id);
-            BaseResponse<List<Student>> response = await _classManager.GetAllClassStudents(id);
+            BaseResponse<ClassDto> response = await _classManager.GetAllClassStudents(id);
             return Ok(response);
         }
     }

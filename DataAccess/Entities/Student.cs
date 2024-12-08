@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace DataAccess.Entities;
 
@@ -32,6 +33,7 @@ public partial class Student
     public virtual Class? Class { get; set; }
 
     [ForeignKey("StudentId")]
+    [JsonIgnore]
     [InverseProperty("Students")]
     public virtual ICollection<Subject> Subjects { get; set; } = new List<Subject>();
 }

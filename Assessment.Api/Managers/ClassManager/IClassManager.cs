@@ -11,6 +11,6 @@ namespace Assessment.Api.Managers
         Task<BaseResponse<List<Class>>> GetAllClasses();
         Task<BaseResponse<Class>> GetClassById(int classId);
         Task<BaseResponse<Class>> UpdateClass(int classId, UpdateClassDto updateClassDto);
-        Task<BaseResponse<List<Student>>> GetAllClassStudents(int classId);
+        Task<BaseResponse<ClassDto>> GetAllClassStudents(int classId);
     }
 }

@@ -98,19 +98,21 @@ namespace Assessment.Api.Managers
             }
         }
 
-        public async Task<BaseResponse<List<Student>>> GetAllClassStudents(int classId)
+        public async Task<BaseResponse<ClassDto>> GetAllClassStudents(int classId)
         {
             try
             {
-                var students = await _classRepository.GetAllClassStudents(classId);
+                ClassDto response = await _classRepository.GetAllClassStudents(classId);
 
-                if (students == null || students.Count == 0)
+                
+
+                if (response == null || response.Students.Count == 0)
                 {
                     _logger.LogError("Assessment.Api.Managers.ClassManager.GetAllClassStudents | Students not found | Class ID: {classId}.", classId);
                     throw new ResourceNotFoundException("NO_STUDENT_FOUND");
                 }
 
-                return new BaseResponse<List<Student>> { Succeeded = true, Data = students, Message = "DATA_RETRIVED"};
+                return new BaseResponse<ClassDto> { Succeeded = true, Data = response, Message = "DATA_RETRIVED"};
             }
             catch (Exception ex)
             {

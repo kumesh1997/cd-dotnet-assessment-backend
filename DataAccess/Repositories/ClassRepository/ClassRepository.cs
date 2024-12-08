@@ -60,18 +60,22 @@ namespace DataAccess.Repositories
                 .FirstOrDefaultAsync(c => c.ClassId == classId && !c.IsDeleted);
         }
 
-        public async Task<List<Student>> GetAllClassStudents(int classId)
+        public async Task<ClassDto> GetAllClassStudents(int classId)
         {
             var classEntity = await _dbContext.Classes
                 .Include(c => c.Students)
                 .FirstOrDefaultAsync(c => c.ClassId == classId && !c.IsDeleted);
 
-            if (classEntity == null)
+            ClassDto classDto = new ClassDto
             {
-                throw new ResourceNotFoundException($"Class with ID {classId} not found.");
-            }
-
-            return classEntity.Students.ToList();
+                ClassId = classEntity.ClassId,
+                ClassName = classEntity.ClassName,
+                Grade = classEntity.Grade,
+                Students = classEntity.Students
+        .Select(s => new StudentDto { StudentId = s.StudentId, StudentName = s.Name })
+        .ToList()
+            };
+            return classDto;
         }
 
         public async Task<Class> UpdateClass(int classId, UpdateClassDto updateClassDto)

@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace Assessment.Api.Controllers
 {
     [ApiController]
-    public class StudentController : CoreController
+    public class StudentsController : CoreController
     {
         private readonly IStudentManager _studentManager;
-        private readonly ILogger<StudentController> _logger;
-        public StudentController(IStudentManager studentManager, ILogger<StudentController> logger) 
+        private readonly ILogger<StudentsController> _logger;
+        public StudentsController(IStudentManager studentManager, ILogger<StudentsController> logger) 
         {
             _studentManager = studentManager;
             _logger = logger;

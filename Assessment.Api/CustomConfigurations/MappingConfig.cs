@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using DataAccess.Entities;
+using Model.Dtos;
 
 namespace Assessment.Api.CustomConfigurations
 {
@@ -8,7 +10,7 @@ namespace Assessment.Api.CustomConfigurations
         {
             MapperConfiguration? mappingConfig = new MapperConfiguration(config =>
             {
-                //config.CreateMap<ProjectResponseDto, Project>();
+                config.CreateMap<CreateClassDto, Class>();
               
 
             });

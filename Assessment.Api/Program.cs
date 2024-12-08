@@ -2,9 +2,15 @@ using Assessment.Api.CustomConfigurations;
 using Assessment.Api.Managers;
 using Assessment.Api.Middlewares;
 using AutoMapper;
+using DataAccess.DBContexts;
 using DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// DB service config
+builder.Services.AddDbContext<SchoolDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 // Automapper config
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();

@@ -7,11 +7,11 @@ using Model.Responses;
 namespace Assessment.Api.Controllers
 {
     [ApiController]
-    public class ClassController : CoreController
+    public class ClassesController : CoreController
     {
         private readonly IClassManager _classManager;
-        private readonly ILogger<ClassController> _logger;
-        public ClassController(IClassManager classManager, ILogger<ClassController> logger)
+        private readonly ILogger<ClassesController> _logger;
+        public ClassesController(IClassManager classManager, ILogger<ClassesController> logger)
         {
             _classManager = classManager;
             _logger = logger;

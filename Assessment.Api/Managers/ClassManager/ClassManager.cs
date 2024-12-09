@@ -2,7 +2,9 @@
 using Azure;
 using DataAccess.Entities;
 using DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Model.Dtos;
+using Model.Requests;
 using Model.Responses;
 using static Core.Exceptions.DomainException;
 
@@ -98,13 +100,45 @@ namespace Assessment.Api.Managers
             }
         }
 
+        public async Task<BaseResponse<Result<Class>>> GetPaginatedList(ClassPaginatedRequest classPaginatedRequest)
+        {
+            try
+            {
+                IQueryable<Class> query = _classRepository.GetPaginatedList(classPaginatedRequest);
+
+                List<Class> paginatedList = await query.ToListAsync();
+
+                int totalLength = await query.CountAsync();
+
+                BaseResponse<Result<Class>> response = new BaseResponse<Result<Class>>
+                {
+                    Succeeded = true,
+                    Data = new Result<Class>
+                    {
+                        Entities = paginatedList.ToArray(),
+                        Pagination = new Pagination
+                        {
+                            Length = totalLength,
+                            PageSize = classPaginatedRequest.limit
+                        }
+                    },
+                    Message = "DATA_RETRIVED"
+
+                };
+
+                return response;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<BaseResponse<ClassDto>> GetStudentsInClass(int classId)
         {
             try
             {
                 ClassDto response = await _classRepository.GetStudentsByClassId(classId);
-
-                
 
                 if (response == null || response.Students.Count == 0)
                 {

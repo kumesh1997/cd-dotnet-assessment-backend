@@ -63,64 +63,48 @@ namespace DataAccess.Repositories
                 .FirstOrDefaultAsync(c => c.ClassId == classId && !c.IsDeleted);
         }
 
-        public IQueryable<Class> GetPaginatedList(ClassPaginatedRequest classPaginatedRequest)
+        public IQueryable<Class> GetPaginatedList(ClassPaginatedRequest request)
         {
-            int page = classPaginatedRequest.page;
-            int pageSize = classPaginatedRequest.limit;
-            string sortBy = classPaginatedRequest.sortBy;
-            bool ascending = classPaginatedRequest.accending;
+            // Extract and normalize filters
+            string? className = request.ClassName?.Trim().ToLower() ?? string.Empty;
+            string? grade = request.Grade?.Trim().ToLower() ?? string.Empty;
+            string? teacherId = request.TeacherId?.Trim() ?? string.Empty;
 
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
+            // Start with the base query
+            IQueryable<Class> classes = _dbContext.Classes
+                .Where(c =>
+                    (string.IsNullOrEmpty(className) || c.ClassName.ToLower().Contains(className)) &&
+                    (string.IsNullOrEmpty(grade) || c.Grade.ToLower() == grade) &&
+                    (string.IsNullOrEmpty(teacherId) || c.TeacherId == teacherId) &&
+                    (c.IsDeleted == false));
 
-            IQueryable<Class> query = _dbContext.Classes.AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(classPaginatedRequest.ClassName))
+            if (!string.IsNullOrWhiteSpace(request.sortBy))
             {
-                query = query.Where(c => c.ClassName.Contains(classPaginatedRequest.ClassName));
-            }
-            if (!string.IsNullOrWhiteSpace(classPaginatedRequest.Grade))
-            {
-                query = query.Where(c => c.Grade == classPaginatedRequest.Grade);
-            }
-            if (!string.IsNullOrWhiteSpace(classPaginatedRequest.TeacherId))
-            {
-                query = query.Where(c => c.TeacherId == classPaginatedRequest.TeacherId);
-            }
-            if (classPaginatedRequest.IsDeleted.HasValue)
-            {
-                query = query.Where(c => c.IsDeleted == classPaginatedRequest.IsDeleted.Value);
-            }
-
-            if (!string.IsNullOrWhiteSpace(sortBy))
-            {
-                switch (sortBy.ToLower())
+                switch (request.sortBy.ToLower())
                 {
                     case "classname":
-                        query = ascending ? query.OrderBy(c => c.ClassName) : query.OrderByDescending(c => c.ClassName);
+                        classes = request.accending ? classes.OrderBy(c => c.ClassName) : classes.OrderByDescending(c => c.ClassName);
                         break;
                     case "grade":
-                        query = ascending ? query.OrderBy(c => c.Grade) : query.OrderByDescending(c => c.Grade);
+                        classes = request.accending ? classes.OrderBy(c => c.Grade) : classes.OrderByDescending(c => c.Grade);
                         break;
                     case "teacherid":
-                        query = ascending ? query.OrderBy(c => c.TeacherId) : query.OrderByDescending(c => c.TeacherId);
+                        classes = request.accending ? classes.OrderBy(c => c.TeacherId) : classes.OrderByDescending(c => c.TeacherId);
                         break;
                     default:
-                        query = query.OrderBy(c => c.ClassId);
+                        classes = classes.OrderBy(c => c.ClassId);
                         break;
                 }
             }
-            else
+
+            if (request.limit > 0)
             {
-                query = query.OrderBy(c => c.ClassId);
+                classes = classes
+                    .Skip((request.page - 1) * request.limit)
+                    .Take(request.limit);
             }
 
-            IQueryable<Class> paginatedList = (IQueryable<Class>)query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return paginatedList.AsQueryable();
+            return classes.AsQueryable();
         }
 
         public async Task<ClassDto> GetStudentsByClassId(int classId)

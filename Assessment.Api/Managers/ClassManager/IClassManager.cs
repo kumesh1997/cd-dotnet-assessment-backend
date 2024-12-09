@@ -1,5 +1,6 @@
 ﻿using DataAccess.Entities;
 using Model.Dtos;
+using Model.Requests;
 using Model.Responses;
 
 namespace Assessment.Api.Managers
@@ -12,5 +13,6 @@ namespace Assessment.Api.Managers
         Task<BaseResponse<Class>> GetClassById(int classId);
         Task<BaseResponse<Class>> UpdateClass(int classId, UpdateClassDto updateClassDto);
         Task<BaseResponse<ClassDto>> GetStudentsInClass(int classId);
+        Task<BaseResponse<Result<Class>>> GetPaginatedList(ClassPaginatedRequest classPaginatedRequest);
     }
 }

@@ -12,6 +12,6 @@ namespace DataAccess.Repositories
         Task<Class> Update(int classId, UpdateClassDto updateClassDto);
         Task<bool> Delete(int classId);
         Task<ClassDto> GetStudentsByClassId(int classId);
-        IQueryable<Class> GetPaginatedList(ClassPaginatedRequest classPaginatedRequest);
+        IQueryable<Class> GetPaginatedList(ClassPaginatedRequest request);
     }
 }

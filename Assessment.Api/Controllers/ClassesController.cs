@@ -2,6 +2,7 @@
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Model.Dtos;
+using Model.Requests;
 using Model.Responses;
 using System.Text.Json;
 
@@ -67,6 +68,13 @@ namespace Assessment.Api.Controllers
             _logger.LogInformation("Assessment.Api.Controllers.ClassesController.GetAllClassStudents | Request in progress. | Class ID: {id}", id);
             BaseResponse<ClassDto> response = await _classManager.GetStudentsInClass(id);
             return Ok(response);
+        }
+
+        [HttpPost("/paginated")]
+        public async Task<IActionResult> GetPaginated([FromBody] ClassPaginatedRequest request)
+        {
+            _logger.LogInformation("Assessment.Api.Controllers.ClassesController.GetPaginated | Request in progress. | Request: {request}", JsonSerializer.Serialize(request));
+            return Ok(await _classManager.GetPaginatedList(request));
         }
     }
 }

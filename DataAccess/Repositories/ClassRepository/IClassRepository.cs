@@ -1,5 +1,6 @@
 ﻿using DataAccess.Entities;
 using Model.Dtos;
+using Model.Requests;
 
 namespace DataAccess.Repositories
 {
@@ -11,5 +12,6 @@ namespace DataAccess.Repositories
         Task<Class> Update(int classId, UpdateClassDto updateClassDto);
         Task<bool> Delete(int classId);
         Task<ClassDto> GetStudentsByClassId(int classId);
+        IQueryable<Class> GetPaginatedList(ClassPaginatedRequest classPaginatedRequest);
     }
 }

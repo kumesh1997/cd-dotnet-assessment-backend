@@ -22,6 +22,9 @@ public partial class Subject
     [StringLength(100)]
     public string? TeacherId { get; set; }
 
+    [Column("is_deleted")]
+    public bool IsDeleted { get; set; }
+
     [ForeignKey("SubjectId")]
     [InverseProperty("Subjects")]
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();

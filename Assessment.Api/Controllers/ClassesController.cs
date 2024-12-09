@@ -24,7 +24,7 @@ namespace Assessment.Api.Controllers
         {
             _logger.LogInformation("Assessment.Api.Controllers.ClassesController.CreateClass | Request in progress. | Request: {createClassDto}", JsonSerializer.Serialize(createClassDto));
             if (createClassDto == null) return BadRequest();
-            BaseResponse<Class> createdClass = await _classManager.CreateClass(createClassDto);
+            BaseResponse<Class> createdClass = await _classManager.AddClass(createClassDto);
             return Ok(createdClass);
         }
 
@@ -65,7 +65,7 @@ namespace Assessment.Api.Controllers
         public async Task<IActionResult> GetAllClassStudents(int id)
         {
             _logger.LogInformation("Assessment.Api.Controllers.ClassesController.GetAllClassStudents | Request in progress. | Class ID: {id}", id);
-            BaseResponse<ClassDto> response = await _classManager.GetAllClassStudents(id);
+            BaseResponse<ClassDto> response = await _classManager.GetStudentsInClass(id);
             return Ok(response);
         }
     }

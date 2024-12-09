@@ -22,13 +22,13 @@ namespace Assessment.Api.Managers
             _logger.LogInformation("Ctor Assessment.Api.Managers.ClassManager");
         }
 
-        public async Task<BaseResponse<Class>> CreateClass(CreateClassDto createClassDto)
+        public async Task<BaseResponse<Class>> AddClass(CreateClassDto createClassDto)
         {
             try
             {
                 Class newClass = _mapper.Map<Class>(createClassDto);
 
-                Class response = await _classRepository.CreateClass(createClassDto);
+                Class response = await _classRepository.Add(createClassDto);
 
                 if (response == null) 
                 {
@@ -47,7 +47,7 @@ namespace Assessment.Api.Managers
         {
             try
             {
-                bool response = await _classRepository.DeleteClass(classId);
+                bool response = await _classRepository.Delete(classId);
                 if (response == false)
                 {
                     _logger.LogError("Assessment.Api.Managers.ClassManager.DeleteClass | Class not founs | Class ID: {classId}.", classId);
@@ -66,7 +66,7 @@ namespace Assessment.Api.Managers
         {
             try
             {
-                List<Class> classes = await _classRepository.GetAllClasses();
+                List<Class> classes = await _classRepository.GetAll();
                 if (classes == null)
                 {
                     _logger.LogError("Assessment.Api.Managers.ClassManager.GetAllClasses | Classes not found .");
@@ -84,7 +84,7 @@ namespace Assessment.Api.Managers
         {
             try
             {
-                Class classes = await _classRepository.GetClassById(classId);
+                Class classes = await _classRepository.GetById(classId);
                 if (classes == null)
                 {
                     _logger.LogError("Assessment.Api.Managers.ClassManager.GetClassById | Class not found | Class ID: {classId}.", classId);
@@ -98,11 +98,11 @@ namespace Assessment.Api.Managers
             }
         }
 
-        public async Task<BaseResponse<ClassDto>> GetAllClassStudents(int classId)
+        public async Task<BaseResponse<ClassDto>> GetStudentsInClass(int classId)
         {
             try
             {
-                ClassDto response = await _classRepository.GetAllClassStudents(classId);
+                ClassDto response = await _classRepository.GetStudentsByClassId(classId);
 
                 
 
@@ -124,7 +124,7 @@ namespace Assessment.Api.Managers
         {
             try
             {
-                Class response = await _classRepository.UpdateClass(classId, updateClassDto);
+                Class response = await _classRepository.Update(classId, updateClassDto);
                 if (response == null)
                 {
                     _logger.LogError("Assessment.Api.Managers.ClassManager.UpdateClass | Class not updated | Class ID: {classId} | Class entity: {updateClassDto}.", classId, updateClassDto);

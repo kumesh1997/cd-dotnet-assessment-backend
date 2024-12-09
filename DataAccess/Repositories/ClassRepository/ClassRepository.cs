@@ -22,7 +22,7 @@ namespace DataAccess.Repositories
             _logger.LogInformation("Ctor Assessment.DataAccess.Repositories.ClassRepository");
         }
 
-        public async Task<Class> CreateClass(CreateClassDto createClassDto)
+        public async Task<Class> Add(CreateClassDto createClassDto)
         {
             _logger.LogError("Assessment.DataAccess.Repositories.ClassRepository.CreateClass | Method in progress. Class Name: {ClassName}", createClassDto.ClassName);
             Class newClass = _mapper.Map<Class>(createClassDto);
@@ -31,7 +31,7 @@ namespace DataAccess.Repositories
             return newClass;
         }
 
-        public async Task<bool> DeleteClass(int classId)
+        public async Task<bool> Delete(int classId)
         {
             Class classEntity = await _dbContext.Classes.FindAsync(classId);
 
@@ -47,24 +47,29 @@ namespace DataAccess.Repositories
             return true;
         }
 
-        public async Task<List<Class>> GetAllClasses()
+        public async Task<List<Class>> GetAll()
         {
             return await _dbContext.Classes
                 .Where(c => !c.IsDeleted)
                 .ToListAsync();
         }
 
-        public async Task<Class> GetClassById(int classId)
+        public async Task<Class> GetById(int classId)
         {
             return await _dbContext.Classes
                 .FirstOrDefaultAsync(c => c.ClassId == classId && !c.IsDeleted);
         }
 
-        public async Task<ClassDto> GetAllClassStudents(int classId)
+        public async Task<ClassDto> GetStudentsByClassId(int classId)
         {
             var classEntity = await _dbContext.Classes
                 .Include(c => c.Students)
                 .FirstOrDefaultAsync(c => c.ClassId == classId && !c.IsDeleted);
+
+            if (classEntity == null)
+            {
+                return null;
+            }
 
             ClassDto classDto = new ClassDto
             {
@@ -78,7 +83,7 @@ namespace DataAccess.Repositories
             return classDto;
         }
 
-        public async Task<Class> UpdateClass(int classId, UpdateClassDto updateClassDto)
+        public async Task<Class> Update(int classId, UpdateClassDto updateClassDto)
         {
             Class classEntity = await _dbContext.Classes.FindAsync(classId);
             if (classEntity == null)

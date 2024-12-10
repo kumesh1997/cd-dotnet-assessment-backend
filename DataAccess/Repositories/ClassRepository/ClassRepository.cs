@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using Azure;
 using DataAccess.DBContexts;
 using DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model.Dtos;
+using Model.Requests;
+using System.Globalization;
 using static Core.Exceptions.DomainException;
 
 namespace DataAccess.Repositories
@@ -22,7 +25,7 @@ namespace DataAccess.Repositories
             _logger.LogInformation("Ctor Assessment.DataAccess.Repositories.ClassRepository");
         }
 
-        public async Task<Class> CreateClass(CreateClassDto createClassDto)
+        public async Task<Class> Add(CreateClassDto createClassDto)
         {
             _logger.LogError("Assessment.DataAccess.Repositories.ClassRepository.CreateClass | Method in progress. Class Name: {ClassName}", createClassDto.ClassName);
             Class newClass = _mapper.Map<Class>(createClassDto);
@@ -31,7 +34,7 @@ namespace DataAccess.Repositories
             return newClass;
         }
 
-        public async Task<bool> DeleteClass(int classId)
+        public async Task<bool> Delete(int classId)
         {
             Class classEntity = await _dbContext.Classes.FindAsync(classId);
 
@@ -47,24 +50,73 @@ namespace DataAccess.Repositories
             return true;
         }
 
-        public async Task<List<Class>> GetAllClasses()
+        public async Task<List<Class>> GetAll()
         {
             return await _dbContext.Classes
                 .Where(c => !c.IsDeleted)
                 .ToListAsync();
         }
 
-        public async Task<Class> GetClassById(int classId)
+        public async Task<Class> GetById(int classId)
         {
             return await _dbContext.Classes
                 .FirstOrDefaultAsync(c => c.ClassId == classId && !c.IsDeleted);
         }
 
-        public async Task<ClassDto> GetAllClassStudents(int classId)
+        public IQueryable<Class> GetPaginatedList(ClassPaginatedRequest request)
+        {
+            // Extract and normalize filters
+            string? className = request.ClassName?.Trim().ToLower() ?? string.Empty;
+            string? grade = request.Grade?.Trim().ToLower() ?? string.Empty;
+            string? teacherId = request.TeacherId?.Trim() ?? string.Empty;
+
+            // Start with the base query
+            IQueryable<Class> classes = _dbContext.Classes
+                .Where(c =>
+                    (string.IsNullOrEmpty(className) || c.ClassName.ToLower().Contains(className)) &&
+                    (string.IsNullOrEmpty(grade) || c.Grade.ToLower() == grade) &&
+                    (string.IsNullOrEmpty(teacherId) || c.TeacherId == teacherId) &&
+                    (c.IsDeleted == false));
+
+            if (!string.IsNullOrWhiteSpace(request.sortBy))
+            {
+                switch (request.sortBy.ToLower())
+                {
+                    case "classname":
+                        classes = request.accending ? classes.OrderBy(c => c.ClassName) : classes.OrderByDescending(c => c.ClassName);
+                        break;
+                    case "grade":
+                        classes = request.accending ? classes.OrderBy(c => c.Grade) : classes.OrderByDescending(c => c.Grade);
+                        break;
+                    case "teacherid":
+                        classes = request.accending ? classes.OrderBy(c => c.TeacherId) : classes.OrderByDescending(c => c.TeacherId);
+                        break;
+                    default:
+                        classes = classes.OrderBy(c => c.ClassId);
+                        break;
+                }
+            }
+
+            if (request.limit > 0)
+            {
+                classes = classes
+                    .Skip((request.page - 1) * request.limit)
+                    .Take(request.limit);
+            }
+
+            return classes.AsQueryable();
+        }
+
+        public async Task<ClassDto> GetStudentsByClassId(int classId)
         {
             var classEntity = await _dbContext.Classes
                 .Include(c => c.Students)
                 .FirstOrDefaultAsync(c => c.ClassId == classId && !c.IsDeleted);
+
+            if (classEntity == null)
+            {
+                return null;
+            }
 
             ClassDto classDto = new ClassDto
             {
@@ -78,7 +130,7 @@ namespace DataAccess.Repositories
             return classDto;
         }
 
-        public async Task<Class> UpdateClass(int classId, UpdateClassDto updateClassDto)
+        public async Task<Class> Update(int classId, UpdateClassDto updateClassDto)
         {
             Class classEntity = await _dbContext.Classes.FindAsync(classId);
             if (classEntity == null)
